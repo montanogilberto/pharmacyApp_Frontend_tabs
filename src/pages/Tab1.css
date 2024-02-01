@@ -1,0 +1,36 @@
+/* Tab1.css */
+
+/* Base color scheme */
+:root {
+  --primary-color: #1877f2; /* Facebook blue */
+  --secondary-color: #fff; /* White */
+}
+
+/* Apply styles to specific elements */
+ion-content {
+  background-color: var(--secondary-color);
+}
+
+ion-card {
+  background-color: var(--primary-color);
+  color: var(--secondary-color);
+  margin-bottom: 20px;
+}
+
+ion-card-header {
+  background-color: var(--primary-color);
+}
+
+ion-card-subtitle, ion-card-title {
+  color: var(--secondary-color);
+}
+
+ion-list {
+  --ion-background-color: var(--secondary-color);
+}
+
+
+
+ion-label {
+  color: var(--secondary-color);
+}
