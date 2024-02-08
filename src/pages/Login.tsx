@@ -1,6 +1,5 @@
-// Login.tsx
 import React, { useState } from 'react';
-import { IonContent, IonInput, IonButton, IonLabel, IonPage, IonCol, IonRow, IonGrid } from '@ionic/react';
+import { IonContent, IonPage, IonInput, IonGrid, IonRow, IonCol, IonLabel, IonButton, IonToast, IonRouterLink } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
 import '../master.css';
 import './Login.css';
@@ -13,9 +12,12 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   const history = useHistory();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false); // Added loading state
+  const [message, setMessage] = useState<string | null>(null); // Added state to store the message
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true); // Set loading to true when login process starts
 
     try {
       const response = await fetch('https://smartloansbackend.azurewebsites.net/login', {
@@ -33,18 +35,22 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         }),
       });
 
-      if (!response.ok) {
-        // Handle error scenarios based on your backend response
+      // Extract body from response
+      const { result } = await response.json();
+      const message = result[0].msg;
+
+      if (message === 'User Invalid') {
+        setMessage(message);
         console.error('Login failed');
+        setLoading(false); // Reset loading state on failure
         return;
       }
 
-      // Call the callback to handle successful login
       onLoginSuccess();
       history.push('/tab1');
     } catch (error) {
-      // Handle network errors or other exceptions
       console.error('Error during login:', error);
+      setLoading(false); // Reset loading state on error
     }
   };
 
@@ -53,8 +59,16 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
       <IonContent className="ion-padding">
         <IonGrid>
           <IonRow className="ion-justify-content-center">
-            <IonCol size="12" size-sm="8" size-md="6" size-lg="4">
+            <IonCol size="12" sizeSm="8" sizeMd="6" sizeLg="4">
               <h1 className="ion-text-center">Login</h1>
+              <IonToast
+                isOpen={!!message}
+                message={message || ''}
+                duration={3000}
+                onDidDismiss={() => setMessage(null)}
+                color="danger"
+                position="top"
+              />
               <form onSubmit={handleLogin}>
                 <IonLabel position="floating">Username</IonLabel>
                 <IonInput
@@ -72,15 +86,16 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                   style={{ marginBottom: '15px', padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }}
                 ></IonInput>
 
-                <IonButton expand="full" type="submit">Login</IonButton>
+                {/* Disabled button when loading */}
+                <IonButton expand="full" type="submit" disabled={loading}>{loading ? 'Logging in...' : 'Login'}</IonButton>
               </form>
 
               <div className="ion-text-center">
                 <p>
-                  <a href="/forgot-password">Forgot Password?</a>
+                  <IonRouterLink href="/forgot-password">Forgot Password?</IonRouterLink>
                 </p>
                 <p>
-                  <a href="/createaccount">Create Account</a>
+                  <IonRouterLink href="/createaccount">Create Account</IonRouterLink>
                 </p>
               </div>
             </IonCol>

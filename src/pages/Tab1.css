@@ -6,6 +6,8 @@
   --secondary-color: #fff; /* White */
 }
 
+
+
 /* Apply styles to specific elements */
 ion-content {
   background-color: var(--secondary-color);
