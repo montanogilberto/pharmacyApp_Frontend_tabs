@@ -60,6 +60,12 @@ jobs:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_A46CD8EA669943648A0B25F0BB528CC0 }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_FBE5ED8CA8BE4B28851F1CE018DCB5D5 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_41852DBA9D33405AA6E273753E28E910 }}
+          
+      - name: Run custom deploy script
+        uses: actions/run-script@v3
+        with:
+          script: bash custom-deploy-script/deploy.sh
+          script-path: ${{ github.workspace }}/custom-deploy-script
 
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
@@ -67,5 +73,5 @@ jobs:
         with:
           app-name: 'pharmacyAppPOS'
           slot-name: 'Production'
-          package: .
+          package: ${{ github.workspace }}/dist
           
