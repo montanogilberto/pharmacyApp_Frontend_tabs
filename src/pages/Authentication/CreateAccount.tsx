@@ -131,6 +131,7 @@ const CreateAccount: React.FC<CreateAccountProps> = ({ onCreateAccountSuccess })
                 {email && !isEmailValid && <p style={{ color: 'red' }}>Invalid email structure.</p>}
                 
                 <IonInput
+
                   type="text"
                   value={username}
                   placeholder='UserName'
@@ -153,16 +154,17 @@ const CreateAccount: React.FC<CreateAccountProps> = ({ onCreateAccountSuccess })
                   onIonChange={(e) => setConfirmPassword(e.detail.value!)}
                   style={{ marginBottom: '15px', padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }}
                 ></IonInput>
-                <IonItem lines="none" className="ion-justify-content-center">
+                
                     <IonButton
                     type="submit"
+                    expand="full"       
                     className="ion-button"
                     disabled={loading}
                     style={{ width: '100%', maxWidth: '300px' }} // Adjust width as needed
                     >
                     {loading ? 'Creating account...' : 'Create Account'}
                     </IonButton>
-                </IonItem>
+  
               </form>
 
               <div className="ion-text-center">

@@ -89,16 +89,16 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                   style={{ marginBottom: '15px', padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }}
                 >
                 </IonInput>
-                <IonItem lines="none" className="ion-justify-content-center">
-                  <IonButton
-                    type="submit"
-                    expand="block"
-                    disabled={loading}
-                    style={{ width: '100%', maxWidth: '300px' }} // Adjust width as needed
-                  >
-                    {loading ? 'Logging in...' : 'Login'}
-                  </IonButton>
-                  </IonItem>
+                
+                    <IonButton
+                      type="submit"
+                      expand="full"
+                      disabled={loading}
+                      style={{ width: '100%'}} // Adjust width as needed
+                    >
+                      {loading ? 'Logging in...' : 'Login'}
+                    </IonButton>
+                 
               </form>
 
               <div className="ion-text-center">
