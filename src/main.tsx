@@ -1,9 +1,11 @@
 // main.tsx
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { BrowserRouter as Router } from 'react-router-dom'; // Import BrowserRouter
-import LoginPage from './pages/Login';
+import { Route, BrowserRouter as Router, Switch } from 'react-router-dom'; // Import BrowserRouter
+import Login from './pages/Authentication/Login';
 import App from './App';
+import ForgotPassword from './pages/Authentication/ForgotPassword';
+import CreateAccount from './pages/Authentication/CreateAccount';
 
 const container = document.getElementById('root');
 const root = createRoot(container!);
@@ -20,11 +22,14 @@ const Main: React.FC = () => {
   return (
     <Router> {/* Wrap your entire application with BrowserRouter */}
       <React.StrictMode>
-        {authenticated ? (
-          <App />
-        ) : (
-          <LoginPage onLoginSuccess={handleLoginSuccess} />
-        )}
+        <Switch>
+          <Route path="/forgot-password" component={ForgotPassword} />
+          <Route path="/create-account" component={CreateAccount} /> 
+          <Route>
+            {/* Default route */}
+            {authenticated ? <App /> : <Login onLoginSuccess={handleLoginSuccess} />}
+          </Route>
+        </Switch>
       </React.StrictMode>
     </Router>
   );

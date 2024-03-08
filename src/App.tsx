@@ -21,15 +21,15 @@ import {
 } from '@ionic/react';
 
 import { IonReactRouter } from '@ionic/react-router';
-import { Redirect, Route, Link } from 'react-router-dom';
+import { Redirect, Route, Link, useHistory } from 'react-router-dom';
 import { ellipse, square, triangle, helpCircleOutline, logOutOutline, mailOutline, closeOutline } from 'ionicons/icons';
 
 
 import Tab1 from './pages/Tab1';
 import Tab2 from './pages/Tab2';
 import Tab3 from './pages/Tab3';
-import Login from './pages/Login';
-import ForgotPassword from './pages/ForgotPassword';
+//import Login from './pages/Login';
+//import ForgotPassword from './pages/ForgotPassword';
 
 import '@ionic/react/css/core.css';
 import '@ionic/react/css/normalize.css';
@@ -46,6 +46,17 @@ import './theme/variables.css';
 setupIonicReact();
 
 const App: React.FC = () => {
+
+  const [authenticated, setAuthenticated] = useState(false);
+  const history = useHistory(); // Add this line
+  const handleLoginSuccess = () => {
+    setAuthenticated(true);
+  };
+  const handleLogout = () => {
+    setAuthenticated(false);
+    history.push('/login'); // Add this line
+  };
+
   const [showAlertPopover, setShowAlertPopover] = useState<{ showPopover: boolean; event?: Event }>({
     showPopover: false
   });
@@ -78,11 +89,9 @@ const App: React.FC = () => {
               <IonButton onClick={presentMailPopover}>
                 <IonIcon slot="icon-only" icon={mailOutline} />
               </IonButton>
-              <Link to="/login" style={{ textDecoration: 'none' }}>
-                <IonButton routerDirection="forward" onClick={() => {}}>
-                  <IonIcon slot="icon-only" icon={logOutOutline} />
-                </IonButton>
-              </Link>
+              <IonButton routerDirection="forward" onClick={handleLogout} fill="clear">
+                <IonIcon slot="icon-only" icon={logOutOutline} />
+              </IonButton>
             </IonButtons>
           </IonToolbar>
         </IonHeader>
@@ -98,8 +107,6 @@ const App: React.FC = () => {
               <Route path="/tab3">
                 <Tab3 />
               </Route>
-              <Route path="/login" component={Login} />
-              <Route path="/forgot-password" component={ForgotPassword} />
               <Route exact path="/">
                 <Redirect to="/tab1" />
               </Route>
