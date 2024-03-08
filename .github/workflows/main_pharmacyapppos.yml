@@ -18,7 +18,7 @@ jobs:
 
       - name: Set up Node.js version
         uses: actions/setup-node@v3
-        with:
+        run:
           node-version: '20.x'
 
       - name: npm install, build, and test
@@ -62,10 +62,9 @@ jobs:
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_41852DBA9D33405AA6E273753E28E910 }}
           
       - name: Run custom deploy script
-        uses: actions/run-script@v3
-        with:
-          script: bash custom-deploy-script/deploy.sh
-          script-path: ${{ github.workspace }}/custom-deploy-script
+        run: |
+          rm -rf ${DEPLOYMENT_TEMP}/dist/index.html
+          cp dist/index.html ${DEPLOYMENT_TEMP}/index.html
 
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
