@@ -63,9 +63,10 @@ jobs:
           
       - name: Run custom deploy script
         run: |
-          rm -rf ${DEPLOYMENT_TEMP}/dist/index.html
-          cp dist/index.html ${DEPLOYMENT_TEMP}/index.html
-
+          mkdir -p $DEPLOYMENT_TEMP/dist
+          rm -rf $DEPLOYMENT_TEMP/dist/index.html 
+          cp dist/index.html $DEPLOYMENT_TEMP/dist/index.html
+          
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
