@@ -18,7 +18,8 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
 
   console.log('Props:', { onLoginSuccess }); // Log received props
 
-  const handleLogin = async () => {
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
     console.log('Logging in...'); // Log login attempt
     setLoading(true); // Set loading to true when login process starts
 
@@ -72,7 +73,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                 color="danger"
                 position="top"
               />
-              <form onSubmit={(e) => { e.preventDefault(); handleLogin(); }}>
+              <form onSubmit={handleLogin}>
                 <IonLabel position="floating">Username</IonLabel>
                 <IonInput
                   type="text"

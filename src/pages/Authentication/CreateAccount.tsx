@@ -1,79 +1,129 @@
 // CreateAccount.tsx
 import React, { useState } from 'react';
-import { IonContent, IonPage, IonInput, IonGrid, IonRow, IonCol, IonLabel, IonToast, IonRouterLink, IonButton, IonText, IonItem  } from '@ionic/react';
+import { IonContent, IonPage, IonInput, IonGrid, IonRow, IonCol, IonLabel, IonToast, IonRouterLink, IonButton, IonText, IonItem, IonIcon  } from '@ionic/react';
 import IonTooltip from '@ionic/react';
 import { useHistory } from 'react-router-dom';
 import './../../master.css'
 import './CreateAccount.css'; // You can create a CSS file for styling if needed
+import { eye, eyeOff } from 'ionicons/icons';
 
 interface CreateAccountProps {
   onCreateAccountSuccess: () => void; // Function to call when account creation is successful
 }
 
+
+
 const CreateAccount: React.FC<CreateAccountProps> = ({ onCreateAccountSuccess }) => {
-  const history = useHistory();
-  const [email, setEmail] = useState('');
-  const [isEmailValid, setIsEmailValid] = useState(false);
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<string | null>(null); 
+    const history = useHistory();
+    const [email, setEmail] = useState('');
+    const [isEmailValid, setIsEmailValid] = useState(false);
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [message, setMessage] = useState<string | null>(null);
+    const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [passwordStrength, setPasswordStrength] = useState('');
+    const [showPasswordMessage, setShowPasswordMessage] = useState(false);
+    const [passwordBorderColor, setPasswordBorderColor] = useState<string>('transparent');
 
-  const [showEmailTooltip, setShowEmailTooltip] = useState(false);
 
-  const handleMouseEnter = () => {
-    setShowEmailTooltip(true);
-  };
+    const [showEmailTooltip, setShowEmailTooltip] = useState(false);
 
-  const handleMouseLeave = () => {
-    setShowEmailTooltip(false);
-  };
+    const id = 0
+    const action = 1
 
-  const handleEmailChange = (value: string) => {
-    setEmail(value);
-    // Email validation logic
-    const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
-    setIsEmailValid(emailRegex.test(value));
-  };
+    const calculatePasswordStrength = (password: string): string => {
+        // Regular expression for password strength validation
+        // Example: At least 8 characters, at least one uppercase letter, one lowercase letter, one number, and one special character
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-  const validatePasswordStrength = (password: string): boolean => {
-    // Regular expression for password strength validation
-    // Example: At least 8 characters, at least one uppercase letter, one lowercase letter, one number, and one special character
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    return passwordRegex.test(password);
-  };
+        if (password.length === 0) {
+          return '';
+        } else if (passwordRegex.test(password)) {
+          return 'strong';
+        } else if (password.length >= 8) {
+          return 'medium';
+        } else {
+          return 'weak';
+        }
+    };
 
-  const handleCreateAccount = async () => {
+    const handlePasswordChange = (value: string) => {
+        setPassword(value);
+        setPasswordStrength(calculatePasswordStrength(value));
+        const strength = calculatePasswordStrength(value);
+        setPasswordStrength(strength);
+
+        // Set border color based on password strength
+        const borderColor = 
+          strength === 'weak' ? 'red' :
+          strength === 'medium' ? 'orange' :
+          strength === 'strong' ? 'green' : 'transparent';
+      
+        setPasswordBorderColor(borderColor);
+    };
+
+    const handleMouseEnter = () => {
+        setShowEmailTooltip(true);
+    };
+
+    const handleMouseLeave = () => {
+        setShowEmailTooltip(false);
+    };
+
+    const handleEmailChange = (value: string) => {
+        setEmail(value);
+        // Email validation logic
+        const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+        setIsEmailValid(emailRegex.test(value));
+    };
+
+    const togglePasswordVisibility = () => {
+        setShowPassword(!showPassword);
+    };
+
+    const toggleConfirmPasswordVisibility = () => {
+        setShowConfirmPassword(!showConfirmPassword);
+    };
+
+    const handleCreateAccount = async () => {
 
     // Validate password strength
-    if (!validatePasswordStrength(password)) {
-      setMessage('Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.');
-      return;
+    if (!calculatePasswordStrength(password)) {
+        setMessage('Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.');
+        return;
     }
 
     // Validate password confirmation
     if (password !== confirmPassword) {
-      setMessage('Password and confirm password do not match.');
-      return;
+        console.log()
+        setMessage('Password and confirm password do not match.');
+        return;
     }
 
     console.log('Creating account...'); // Log account creation attempt
     setLoading(true); // Set loading to true when account creation process starts
 
+
     try {
-      // Implement your account creation logic here
-      // Example fetch request to an API endpoint
-      // Replace 'your-api-endpoint' with the actual endpoint URL
-      const response = await fetch('your-api-endpoint', {
+      const response = await fetch('https://smartloansbackend.azurewebsites.net/users', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          email,
-          username,
-          password,
+        users: 
+        [
+            {
+                id,
+                email,
+                username,
+                password,
+                action
+            },
+        ],
         }),
       });
 
@@ -140,30 +190,47 @@ const CreateAccount: React.FC<CreateAccountProps> = ({ onCreateAccountSuccess })
                 ></IonInput>
 
                 <IonInput
-                  type="password"
-                  value={password}
-                  placeholder='Password'
-                  onIonChange={(e) => setPassword(e.detail.value!)}
-                  style={{ marginBottom: '15px', padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }}
-                ></IonInput>
-
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    placeholder='Password'
+                    onIonChange={(e) => handlePasswordChange(e.detail.value!)}
+                    style={{
+                        marginBottom: '15px',
+                        padding: '10px',
+                        borderBottom: `2px solid ${passwordBorderColor}`
+                      }}
+                    />
+                    
+                    <p style={{ color: 'gray', fontSize: '0.8em', margin: '5px 0', display: 'inline-block' }}>
+                    Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.
+                    </p>
+                    
+                    <IonIcon
+                    slot="end"
+                    icon={showPassword ? eye : eyeOff}
+                    onClick={togglePasswordVisibility}
+                    style={{ position: 'absolute', top: '46%', transform: 'translateY(-50%)', right: '10px', cursor: 'pointer', zIndex: 2 }}
+                />
                 <IonInput
-                  type="password"
-                  value={confirmPassword}
-                  placeholder='Confirm Password'
-                  onIonChange={(e) => setConfirmPassword(e.detail.value!)}
-                  style={{ marginBottom: '15px', padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }}
-                ></IonInput>
-                
-                    <IonButton
-                    type="submit"
-                    expand="full"       
-                    className="ion-button"
-                    disabled={loading}
-                    style={{ width: '100%', maxWidth: '300px' }} // Adjust width as needed
-                    >
-                    {loading ? 'Creating account...' : 'Create Account'}
-                    </IonButton>
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    value={confirmPassword}
+                    placeholder='Confirm Password'
+                    onIonChange={(e) => setConfirmPassword(e.detail.value!)}
+                    style={{ marginBottom: '15px', padding: '10px', border: '1px solid #ccc', borderRadius: '4px', position: 'relative', zIndex: 1 }}
+                    />
+                    <IonIcon
+                    slot="end"
+                    icon={showConfirmPassword ? eye : eyeOff}
+                    onClick={toggleConfirmPasswordVisibility}
+                    style={{ position: 'absolute', top: '71%', transform: 'translateY(-50%)', right: '10px', cursor: 'pointer', zIndex: 2 }}
+                    />
+                <IonButton
+                type="submit"
+                expand="full"
+                disabled={loading}
+                >
+                {loading ? 'Creating account...' : 'Create Account'}
+                </IonButton>
   
               </form>
 
