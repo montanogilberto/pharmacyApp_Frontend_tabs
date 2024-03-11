@@ -7,13 +7,7 @@ import './../../master.css'
 import './CreateAccount.css'; // You can create a CSS file for styling if needed
 import { eye, eyeOff } from 'ionicons/icons';
 
-interface CreateAccountProps {
-  onCreateAccountSuccess: () => void; // Function to call when account creation is successful
-}
-
-
-
-const CreateAccount: React.FC<CreateAccountProps> = ({ onCreateAccountSuccess }) => {
+const CreateAccount: React.FC = () => { // Removed the interface props
     const history = useHistory();
     const [email, setEmail] = useState('');
     const [isEmailValid, setIsEmailValid] = useState(false);
@@ -28,11 +22,10 @@ const CreateAccount: React.FC<CreateAccountProps> = ({ onCreateAccountSuccess })
     const [showPasswordMessage, setShowPasswordMessage] = useState(false);
     const [passwordBorderColor, setPasswordBorderColor] = useState<string>('transparent');
 
-
     const [showEmailTooltip, setShowEmailTooltip] = useState(false);
 
-    const id = 0
-    const action = 1
+    const id = 0;
+    const action = 1;
 
     const calculatePasswordStrength = (password: string): string => {
         // Regular expression for password strength validation
@@ -108,32 +101,35 @@ const CreateAccount: React.FC<CreateAccountProps> = ({ onCreateAccountSuccess })
 
 
     try {
-      const response = await fetch('https://smartloansbackend.azurewebsites.net/users', {
+
+        const userData = {
+            id,
+            email,
+            username,
+            password,
+            action
+          };
+
+        console.log('Data to be sent to the backend:', userData);
+
+        const response = await fetch('https://smartloansbackend.azurewebsites.net/users', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-        users: 
-        [
-            {
-                id,
-                email,
-                username,
-                password,
-                action
-            },
-        ],
+            users: [userData],
         }),
       });
 
       // Extract response data
       const data = await response.json();
+      console.log('Response from backend:', data);
 
       // Check if account creation was successful
       if (response.ok) {
         setMessage('Account created successfully.');
-        onCreateAccountSuccess(); // Call the callback function
+        // Removed the call to onCreateAccountSuccess(); as it was causing an error
         history.push('/login'); // Redirect to the login page after successful account creation
       } else {
         // Handle account creation failure
