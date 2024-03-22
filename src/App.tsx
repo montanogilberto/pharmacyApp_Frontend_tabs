@@ -1,35 +1,17 @@
 import React, { useState } from 'react';
-import {
-  IonApp,
-  IonHeader,
-  IonToolbar,
-  IonContent,
-  IonTabs,
-  IonRouterOutlet,
-  IonTabBar,
-  IonTabButton,
-  IonIcon,
-  IonLabel,
-  IonButtons,
-  IonButton,
-  IonPopover,
-  IonList,
-  IonItem,
-  IonLabel as IonItemLabel,
-  IonItemDivider,
-  setupIonicReact
-} from '@ionic/react';
-
+import { IonApp, IonContent, IonTabs, IonRouterOutlet, IonTabBar, IonTabButton, IonIcon, IonLabel, setupIonicReact, IonPopover, IonList
+  , IonItemDivider, IonButton,  IonItem,  IonAlert } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { Redirect, Route, Link, useHistory } from 'react-router-dom';
-import { ellipse, square, triangle, helpCircleOutline, logOutOutline, mailOutline, closeOutline } from 'ionicons/icons';
+import { Redirect, Route, useHistory } from 'react-router-dom';
+import { helpCircleOutline, logOutOutline, mailOutline, closeOutline, home, storefront, barcode, medkit } from 'ionicons/icons';
 
-
-import Tab1 from './pages/Tab1';
-import Tab2 from './pages/Tab2';
+import Home from './pages/Menu/Home';
+import Scanner from './pages/Menu/Scanner';
 import Tab3 from './pages/Tab3';
-//import Login from './pages/Login';
-//import ForgotPassword from './pages/ForgotPassword';
+import Symptoms from './pages/Menu/Symptoms';
+import Login from './pages/Authentication/Login';
+import Header from './components/Header';
+import Tabs from './components/Tabs';
 
 import '@ionic/react/css/core.css';
 import '@ionic/react/css/normalize.css';
@@ -42,128 +24,139 @@ import '@ionic/react/css/text-transformation.css';
 import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
 import './theme/variables.css';
+import './App.css';
 
 setupIonicReact();
 
 const App: React.FC = () => {
-
   const [authenticated, setAuthenticated] = useState(false);
-  const history = useHistory(); // Add this line
+  const [showLogoutAlert, setShowLogoutAlert] = useState(false);
+  const history = useHistory();
+
   const handleLoginSuccess = () => {
     setAuthenticated(true);
   };
+
   const handleLogout = () => {
-    setAuthenticated(false);
-    history.push('/login'); // Add this line
+    setShowLogoutAlert(true); // Show the logout alert
   };
 
-  const [showAlertPopover, setShowAlertPopover] = useState<{ showPopover: boolean; event?: Event }>({
-    showPopover: false
-  });
+  const handleLogoutConfirm = () => {
+    setAuthenticated(false);
+    history.push('/Login');
+    setShowLogoutAlert(false); // Hide the logout alert after logout
+  };
 
-  const [showMailPopover, setShowMailPopover] = useState<{ showPopover: boolean; event?: Event }>({
-    showPopover: false
+  const [popoverState, setPopoverState] = useState<{ showAlertPopover: boolean; showMailPopover: boolean; event?: Event }>({
+    showAlertPopover: false,
+    showMailPopover: false
   });
 
   const presentAlertPopover = (e: React.MouseEvent) => {
-    setShowAlertPopover({ showPopover: true, event: e.nativeEvent });
+    setPopoverState({ ...popoverState, showAlertPopover: true, event: e.nativeEvent });
   };
 
-  const dismissAlertPopover = () => setShowAlertPopover({ showPopover: false });
+  const dismissAlertPopover = () => setPopoverState({ ...popoverState, showAlertPopover: false });
 
   const presentMailPopover = (e: React.MouseEvent) => {
-    setShowMailPopover({ showPopover: true, event: e.nativeEvent });
+    setPopoverState({ ...popoverState, showMailPopover: true, event: e.nativeEvent });
   };
 
-  const dismissMailPopover = () => setShowMailPopover({ showPopover: false });
+  const dismissMailPopover = () => setPopoverState({ ...popoverState, showMailPopover: false });
 
   return (
     <IonApp>
       <IonReactRouter>
-        <IonHeader>
-          <IonToolbar>
-            <IonButtons slot="end">
-              <IonButton onClick={presentAlertPopover}>
-                <IonIcon slot="icon-only" icon={helpCircleOutline} />
-              </IonButton>
-              <IonButton onClick={presentMailPopover}>
-                <IonIcon slot="icon-only" icon={mailOutline} />
-              </IonButton>
-              <IonButton routerDirection="forward" onClick={handleLogout} fill="clear">
-                <IonIcon slot="icon-only" icon={logOutOutline} />
-              </IonButton>
-            </IonButtons>
-          </IonToolbar>
-        </IonHeader>
+        <Header
+          presentAlertPopover={presentAlertPopover}
+          presentMailPopover={presentMailPopover}
+          handleLogout={handleLogout}
+        />
         <IonContent>
           <IonTabs>
             <IonRouterOutlet>
-              <Route exact path="/tab1">
-                <Tab1 />
-              </Route>
-              <Route exact path="/tab2">
-                <Tab2 />
-              </Route>
-              <Route path="/tab3">
-                <Tab3 />
-              </Route>
-              <Route exact path="/">
-                <Redirect to="/tab1" />
-              </Route>
+              <Route exact path="/Menu/Home" component={Home} />
+              <Route exact path="/Menu/Scanner" component={Scanner} />
+              <Route path="/tab3" component={Tab3} />
+              <Route path="/Menu/Symptoms" component={Symptoms} />
+              <Route exact path="/login" component={Login} />
+              <Route exact path="/" render={() => <Redirect to="/Home" />} />
             </IonRouterOutlet>
             <IonTabBar slot="bottom">
-              <IonTabButton tab="tab1" href="/tab1">
-                <IonIcon aria-hidden="true" icon={triangle} />
-                <IonLabel>Tab 1</IonLabel>
+              <IonTabButton tab="Home" href="/Menu/Home">
+                <IonIcon aria-hidden="true" icon={home} />
+                Home
               </IonTabButton>
-              <IonTabButton tab="tab2" href="/tab2">
-                <IonIcon aria-hidden="true" icon={ellipse} />
-                <IonLabel>Tab 2</IonLabel>
+              <IonTabButton tab="Scanner" href="/Menu/Scanner">
+                <IonIcon icon={barcode} />
+                Scanner
               </IonTabButton>
               <IonTabButton tab="tab3" href="/tab3">
-                <IonIcon aria-hidden="true" icon={square} />
-                <IonLabel>Tab 3</IonLabel>
+                <IonIcon aria-hidden="true" icon={storefront} />
+                Products
+              </IonTabButton>
+              <IonTabButton tab="Symptoms" href="/Menu/Symptoms">
+                <IonIcon aria-hidden="true" icon={medkit} />
+                Symptoms
               </IonTabButton>
             </IonTabBar>
           </IonTabs>
-
-          {/* Alert Popover */}
           <IonPopover
-            isOpen={showAlertPopover.showPopover}
-            event={showAlertPopover.event}
+            isOpen={popoverState.showAlertPopover}
+            event={popoverState.event}
             onDidDismiss={dismissAlertPopover}
           >
             <IonList>
-            <IonItemDivider>
+              <IonItemDivider>
                 Alert Details
                 <IonButton fill="clear" slot="end" onClick={dismissAlertPopover}>
                   <IonIcon icon={closeOutline} />
                 </IonButton>
               </IonItemDivider>
               <IonItem>
-                <IonItemLabel>Name: Your Name</IonItemLabel>
+                <IonLabel>Name: Your Name</IonLabel>
               </IonItem>
             </IonList>
           </IonPopover>
-
-          {/* Mail Popover */}
           <IonPopover
-            isOpen={showMailPopover.showPopover}
-            event={showMailPopover.event}
+            isOpen={popoverState.showMailPopover}
+            event={popoverState.event}
             onDidDismiss={dismissMailPopover}
           >
             <IonList>
-            <IonItemDivider>
+              <IonItemDivider>
                 Mail Details
                 <IonButton fill="clear" slot="end" onClick={dismissMailPopover}>
                   <IonIcon icon={closeOutline} />
                 </IonButton>
               </IonItemDivider>
               <IonItem>
-                <IonItemLabel>Email: your@email.com</IonItemLabel>
+                <IonLabel>Email: your@email.com</IonLabel>
               </IonItem>
             </IonList>
           </IonPopover>
+          <IonAlert
+            isOpen={showLogoutAlert}
+            onDidDismiss={() => setShowLogoutAlert(false)}
+            header={'Logout'}
+            message={'Are you sure you want to log out?'}
+            buttons={[
+              {
+                text: 'Cancel',
+                role: 'cancel',
+                cssClass: 'secondary',
+                handler: () => {
+                  setShowLogoutAlert(false);
+                }
+              },
+              {
+                text: 'Logout',
+                handler: () => {
+                  handleLogoutConfirm();
+                }
+              }
+            ]}
+          />
         </IonContent>
       </IonReactRouter>
     </IonApp>

@@ -1,9 +1,10 @@
 // Login.tsx
 import React, { useState } from 'react';
-import { IonContent, IonPage, IonInput, IonGrid, IonRow, IonCol, IonLabel, IonToast, IonRouterLink, IonButton, IonItem } from '@ionic/react';
+import { IonContent, IonPage, IonInput, IonGrid, IonRow, IonCol, IonLabel, IonToast, IonRouterLink, IonButton, IonItem, IonIcon } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
 import './../../master.css'
 import './Login.css';
+import { eye, eyeOff } from 'ionicons/icons';
 
 interface LoginProps {
   onLoginSuccess: () => void;
@@ -15,8 +16,13 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false); // Added loading state
   const [message, setMessage] = useState<string | null>(null); // Added state to store the message
+  const [showPassword, setShowPassword] = useState(false);
 
   console.log('Props:', { onLoginSuccess }); // Log received props
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,7 +57,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
       }
 
       onLoginSuccess();
-      history.push('/tab1');
+      history.push('/Menu/Home');
     } catch (error) {
       console.error('Error during login:', error);
       setLoading(false); // Reset loading state on error
@@ -84,11 +90,17 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
 
                 <IonLabel position="floating">Password</IonLabel>
                 <IonInput
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   value={password}
                   onIonChange={(e) => setPassword(e.detail.value!)}
                   style={{ marginBottom: '15px', padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }}
                 >
+                <IonIcon
+                    slot="end"
+                    icon={showPassword ? eye : eyeOff}
+                    onClick={togglePasswordVisibility}
+                    style={{ position: 'absolute', top: '46%', transform: 'translateY(-50%)', right: '10px', cursor: 'pointer', zIndex: 2 }}
+                />
                 </IonInput>
                 
                     <IonButton

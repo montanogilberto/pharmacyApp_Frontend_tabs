@@ -24,7 +24,10 @@ const Main: React.FC = () => {
       <React.StrictMode>
         <Switch>
           <Route path="/forgot-password" component={ForgotPassword} />
-          <Route path="/create-account" component={CreateAccount} /> 
+          <Route path="/create-account" component={CreateAccount} />
+          <Route path="/login">
+            <Login onLoginSuccess={handleLoginSuccess} />
+          </Route>
           <Route>
             {/* Default route */}
             {authenticated ? <App /> : <Login onLoginSuccess={handleLoginSuccess} />}
