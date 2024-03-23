@@ -11,7 +11,8 @@ import Tab3 from './pages/Tab3';
 import Symptoms from './pages/Menu/Symptoms';
 import Login from './pages/Authentication/Login';
 import Header from './components/Header';
-import Tabs from './components/Tabs';
+import LogoutAlert from './components/LogoutAlert';
+
 
 import '@ionic/react/css/core.css';
 import '@ionic/react/css/normalize.css';
@@ -135,27 +136,10 @@ const App: React.FC = () => {
               </IonItem>
             </IonList>
           </IonPopover>
-          <IonAlert
+          <LogoutAlert
             isOpen={showLogoutAlert}
             onDidDismiss={() => setShowLogoutAlert(false)}
-            header={'Logout'}
-            message={'Are you sure you want to log out?'}
-            buttons={[
-              {
-                text: 'Cancel',
-                role: 'cancel',
-                cssClass: 'secondary',
-                handler: () => {
-                  setShowLogoutAlert(false);
-                }
-              },
-              {
-                text: 'Logout',
-                handler: () => {
-                  handleLogoutConfirm();
-                }
-              }
-            ]}
+            handleLogoutConfirm={handleLogoutConfirm}
           />
         </IonContent>
       </IonReactRouter>
