@@ -6,16 +6,14 @@ import {
   IonIcon,
   IonLabel,
   IonText,
-  IonRow,
-  IonCol,
 } from '@ionic/react';
 import { mic, micOff } from 'ionicons/icons';
 import './Home.css';
 
 const Symptoms: React.FC = () => {
   const [isRecording, setIsRecording] = useState(false);
-  const [transcriptions, setTranscriptions] = useState<string[]>([]);
-  const [recognition, setRecognition] = useState<any>(null);
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+  const [audioUrl, setAudioUrl] = useState<string>('');
 
   const toggleRecording = () => {
     if (!isRecording) {
@@ -25,69 +23,51 @@ const Symptoms: React.FC = () => {
     }
   };
 
-  const startRecording = () => {
-    if (!recognition) {
-      const newRecognition = new (window as any).webkitSpeechRecognition();
-      newRecognition.continuous = true;
-      newRecognition.lang = 'en-US';
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      setMediaRecorder(recorder);
 
-      newRecognition.onstart = () => {
-        console.log('Recording started');
-        setIsRecording(true);
-        setTranscriptions([]);
+      const chunks: Blob[] = [];
+
+      recorder.ondataavailable = (event) => {
+        chunks.push(event.data);
       };
 
-      newRecognition.onresult = (event: any) => {
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
-          const transcript = event.results[i][0].transcript;
-          console.log('Transcript:', transcript);
-          setTranscriptions(prevTranscriptions => [...prevTranscriptions, transcript]);
-        }
+      recorder.onstop = () => {
+        const blob = new Blob(chunks, { type: 'audio/wav' });
+        const url = URL.createObjectURL(blob);
+        setAudioUrl(url); // Set the URL to play the recorded audio
       };
 
-      newRecognition.onerror = (event: any) => {
-        console.error('Error:', event.error);
-        stopRecording();
-      };
-
-      newRecognition.onend = () => {
-        console.log('Recording ended');
-        setIsRecording(false);
-      };
-
-      setRecognition(newRecognition);
+      recorder.start();
+      setIsRecording(true);
+    } catch (error) {
+      console.error('Error capturing audio:', error);
+      setIsRecording(false);
     }
-
-    recognition.start();
   };
 
   const stopRecording = () => {
-    
-    console.log('stop')
-    recognition.stop();
-    
+    if (mediaRecorder) {
+      mediaRecorder.stop();
+      setIsRecording(false);
+    }
   };
 
   return (
     <IonPage>
       <IonContent className="ion-padding">
-        <IonRow className="ion-justify-content-center">
-          <IonCol size="12" sizeSm="8" sizeMd="6" sizeLg="4" className="ion-text-center">
-            <h1>Symptoms</h1>
-            <IonButton size="large" onClick={toggleRecording}>
-              <IonIcon icon={isRecording ? micOff : mic} />
-            </IonButton>
-            <br />
-            {isRecording && <IonText>Recording...</IonText>}
-          </IonCol>
-        </IonRow>
-        <IonRow className="ion-justify-content-center">
-          <IonCol>
-            {transcriptions.map((transcript, index) => (
-              <IonText key={index}>{`Transcription ${index + 1}: ${transcript}`}</IonText>
-            ))}
-          </IonCol>
-        </IonRow>
+        <IonButton onClick={toggleRecording}>
+          <IonIcon icon={isRecording ? micOff : mic} />
+        </IonButton>
+        {audioUrl && (
+          <div>
+            <audio controls src={audioUrl} />
+            <IonText>Audio URL: {audioUrl}</IonText>
+          </div>
+        )}
       </IonContent>
     </IonPage>
   );
