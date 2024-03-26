@@ -1,73 +1,73 @@
-import React, { useState } from 'react';
-import {
-  IonContent,
-  IonPage,
-  IonButton,
-  IonIcon,
-  IonLabel,
-  IonText,
-} from '@ionic/react';
-import { mic, micOff } from 'ionicons/icons';
-import './Home.css';
+import React, { useState } from "react";
+import { IonContent, IonPage, IonButton, IonIcon, IonText, IonRow, IonCol, IonGrid } from "@ionic/react";
+import { mic, micOff, closeCircle } from "ionicons/icons";
+import * as sdk from "microsoft-cognitiveservices-speech-sdk";
 
 const Symptoms: React.FC = () => {
   const [isRecording, setIsRecording] = useState(false);
-  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
-  const [audioUrl, setAudioUrl] = useState<string>('');
+  const [transcriptions, setTranscriptions] = useState<string[]>([]);
+  const [speechRecognizer, setSpeechRecognizer] = useState<sdk.SpeechRecognizer | null>(null);
+
+  const subscriptionKey = "460390b601974d33a0d7969c32a041aa";
+  const serviceRegion = "westus";
 
   const toggleRecording = () => {
+    setIsRecording(prev => !prev);
+
     if (!isRecording) {
-      startRecording();
+      console.log("Starting transcription...");
+      const config = sdk.SpeechConfig.fromSubscription(subscriptionKey, serviceRegion);
+      const recognizer = new sdk.SpeechRecognizer(config);
+      recognizer.recognized = (s, e) => {
+        console.log("Recognition result:", e.result.text);
+        handleTranscription(e.result.text);
+      };
+      recognizer.startContinuousRecognitionAsync();
+      setSpeechRecognizer(recognizer);
     } else {
-      stopRecording();
+      console.log("Stopping transcription...");
+      if (speechRecognizer) {
+        speechRecognizer.stopContinuousRecognitionAsync();
+        speechRecognizer.close();
+        setSpeechRecognizer(null);
+      }
     }
   };
 
-  const startRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const recorder = new MediaRecorder(stream);
-      setMediaRecorder(recorder);
-
-      const chunks: Blob[] = [];
-
-      recorder.ondataavailable = (event) => {
-        chunks.push(event.data);
-      };
-
-      recorder.onstop = () => {
-        const blob = new Blob(chunks, { type: 'audio/wav' });
-        const url = URL.createObjectURL(blob);
-        setAudioUrl(url); // Set the URL to play the recorded audio
-      };
-
-      recorder.start();
-      setIsRecording(true);
-    } catch (error) {
-      console.error('Error capturing audio:', error);
-      setIsRecording(false);
-    }
+  const handleTranscription = (transcription: string) => {
+    const sentences = transcription.split(/[\.\?\!]+/); // Split text into sentences
+    setTranscriptions(prev => [...prev, ...sentences.filter(sentence => sentence.trim() !== "")]); // Add sentences to transcriptions list
   };
 
-  const stopRecording = () => {
-    if (mediaRecorder) {
-      mediaRecorder.stop();
-      setIsRecording(false);
-    }
+  const deleteTranscription = (index: number) => {
+    setTranscriptions(prev => prev.filter((_, i) => i !== index));
   };
 
   return (
     <IonPage>
       <IonContent className="ion-padding">
-        <IonButton onClick={toggleRecording}>
-          <IonIcon icon={isRecording ? micOff : mic} />
-        </IonButton>
-        {audioUrl && (
-          <div>
-            <audio controls src={audioUrl} />
-            <IonText>Audio URL: {audioUrl}</IonText>
-          </div>
-        )}
+        <IonGrid>
+          <IonRow className="ion-justify-content-center">
+            <IonCol size="12" sizeSm="8" sizeMd="6" sizeLg="4" className="ion-text-center">
+              <h1>Symptoms</h1>
+              <IonButton size="large" onClick={toggleRecording}>
+                <IonIcon icon={isRecording ? micOff : mic} />
+              </IonButton>
+              <br />
+              {isRecording && <IonText>Recording...</IonText>}
+            </IonCol>
+          </IonRow>
+          <IonRow className="ion-justify-content-center">
+            <IonCol >
+              {transcriptions.map((transcription, index) => (
+                <div key={index} className="transcription-item">
+                  <IonText>{transcription}</IonText>
+                  <IonIcon icon={closeCircle} onClick={() => deleteTranscription(index)} />
+                </div>
+              ))}
+            </IonCol>
+          </IonRow>
+      </IonGrid>
       </IonContent>
     </IonPage>
   );

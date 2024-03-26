@@ -30,6 +30,7 @@
     "@ionic/react-router": "^7.0.0",
     "@types/react-router": "^5.1.20",
     "@types/react-router-dom": "^5.3.3",
+    "cordova-plugin-file": "^8.0.1",
     "cordova-plugin-media-capture": "^5.0.0",
     "install": "^0.13.0",
     "ionicons": "^7.3.0",
