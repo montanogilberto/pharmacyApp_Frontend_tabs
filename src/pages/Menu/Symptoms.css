@@ -1,0 +1,24 @@
+.symptoms-button {
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    background-color: blue;
+    color: white;
+    font-size: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .recording-button {
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    background-color: red;
+    color: white;
+    font-size: 3rem;
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+    transform: translateY(-50%) scale(1.5);
+    transition: all 0.3s ease;
+  }
+  

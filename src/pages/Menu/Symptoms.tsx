@@ -1,7 +1,19 @@
 import React, { useState } from "react";
-import { IonContent, IonPage, IonButton, IonIcon, IonText, IonRow, IonCol, IonGrid } from "@ionic/react";
+import {
+  IonContent,
+  IonPage,
+  IonButton,
+  IonIcon,
+  IonText,
+  IonRow,
+  IonCol,
+  IonGrid,
+} from "@ionic/react";
 import { mic, micOff, closeCircle } from "ionicons/icons";
 import * as sdk from "microsoft-cognitiveservices-speech-sdk";
+
+import './Symptoms.css'
+
 
 const Symptoms: React.FC = () => {
   const [isRecording, setIsRecording] = useState(false);
@@ -11,12 +23,18 @@ const Symptoms: React.FC = () => {
   const subscriptionKey = "460390b601974d33a0d7969c32a041aa";
   const serviceRegion = "westus";
 
-  const toggleRecording = () => {
-    setIsRecording(prev => !prev);
+
+
+  const toggleRecording = async () => {
+
+    setIsRecording((prev) => !prev);
 
     if (!isRecording) {
       console.log("Starting transcription...");
-      const config = sdk.SpeechConfig.fromSubscription(subscriptionKey, serviceRegion);
+      const config = sdk.SpeechConfig.fromSubscription(
+        subscriptionKey,
+        serviceRegion
+      );
       const recognizer = new sdk.SpeechRecognizer(config);
       recognizer.recognized = (s, e) => {
         console.log("Recognition result:", e.result.text);
@@ -35,39 +53,58 @@ const Symptoms: React.FC = () => {
   };
 
   const handleTranscription = (transcription: string) => {
+    console.log("Received transcription:", transcription);
     const sentences = transcription.split(/[\.\?\!]+/); // Split text into sentences
-    setTranscriptions(prev => [...prev, ...sentences.filter(sentence => sentence.trim() !== "")]); // Add sentences to transcriptions list
+    setTranscriptions((prev) => [
+      ...prev,
+      ...sentences.filter((sentence) => sentence.trim() !== ""),
+    ]); // Add sentences to transcriptions list
   };
 
   const deleteTranscription = (index: number) => {
-    setTranscriptions(prev => prev.filter((_, i) => i !== index));
+    console.log("Deleting transcription at index:", index);
+    setTranscriptions((prev) => prev.filter((_, i) => i !== index));
   };
+
+  console.log("Transcriptions:", transcriptions);
 
   return (
     <IonPage>
       <IonContent className="ion-padding">
         <IonGrid>
           <IonRow className="ion-justify-content-center">
-            <IonCol size="12" sizeSm="8" sizeMd="6" sizeLg="4" className="ion-text-center">
+            <IonCol
+              size="12"
+              sizeSm="8"
+              sizeMd="6"
+              sizeLg="4"
+              className="ion-text-center"
+            >
               <h1>Symptoms</h1>
-              <IonButton size="large" onClick={toggleRecording}>
-                <IonIcon icon={isRecording ? micOff : mic} />
-              </IonButton>
+              <IonIcon
+                size="large"
+                onClick={toggleRecording}
+                className={isRecording ? "recording-button" : "symptoms-button"}
+                icon={isRecording ? micOff : mic}
+              />
               <br />
-              {isRecording && <IonText>Recording...</IonText>}
             </IonCol>
           </IonRow>
           <IonRow className="ion-justify-content-center">
-            <IonCol >
+            <IonCol>
               {transcriptions.map((transcription, index) => (
                 <div key={index} className="transcription-item">
                   <IonText>{transcription}</IonText>
-                  <IonIcon icon={closeCircle} onClick={() => deleteTranscription(index)} />
+                  <IonIcon
+                    icon={closeCircle}
+                    color="red"
+                    onClick={() => setTranscriptions(transcriptions.filter((_, i) => i !== index))}
+                  />
                 </div>
               ))}
             </IonCol>
           </IonRow>
-      </IonGrid>
+        </IonGrid>
       </IonContent>
     </IonPage>
   );
