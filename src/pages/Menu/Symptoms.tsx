@@ -2,18 +2,17 @@ import React, { useState } from "react";
 import {
   IonContent,
   IonPage,
-  IonButton,
   IonIcon,
   IonText,
   IonRow,
   IonCol,
   IonGrid,
+  IonButton,
 } from "@ionic/react";
-import { mic, micOff, closeCircle } from "ionicons/icons";
+import { mic, micOff, closeCircle, trashSharp } from "ionicons/icons";
 import * as sdk from "microsoft-cognitiveservices-speech-sdk";
 
-import './Symptoms.css'
-
+import './Symptoms.css';
 
 const Symptoms: React.FC = () => {
   const [isRecording, setIsRecording] = useState(false);
@@ -23,10 +22,7 @@ const Symptoms: React.FC = () => {
   const subscriptionKey = "460390b601974d33a0d7969c32a041aa";
   const serviceRegion = "westus";
 
-
-
   const toggleRecording = async () => {
-
     setIsRecording((prev) => !prev);
 
     if (!isRecording) {
@@ -35,6 +31,8 @@ const Symptoms: React.FC = () => {
         subscriptionKey,
         serviceRegion
       );
+      config.speechRecognitionLanguage = "es-ES";
+      config.setProperty("allowClearFrequency", "false");
       const recognizer = new sdk.SpeechRecognizer(config);
       recognizer.recognized = (s, e) => {
         console.log("Recognition result:", e.result.text);
@@ -66,7 +64,13 @@ const Symptoms: React.FC = () => {
     setTranscriptions((prev) => prev.filter((_, i) => i !== index));
   };
 
-  console.log("Transcriptions:", transcriptions);
+  const downloadTranscriptionsAsJson = () => {
+    const jsonContent = JSON.stringify(transcriptions, null, 2);
+    const blob = new Blob([jsonContent], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    console.log("Transcriptions JSON:", jsonContent);
+    console.log("Download JSON:", url);
+  };
 
   return (
     <IonPage>
@@ -91,23 +95,26 @@ const Symptoms: React.FC = () => {
             </IonCol>
           </IonRow>
           <IonRow className="ion-justify-content-center">
-            <IonCol>
-              {transcriptions.map((transcription, index) => (
-                <div key={index} className="transcription-item">
-                  <IonText>{transcription}</IonText>
-                  <IonIcon
-                    icon={closeCircle}
-                    color="red"
-                    onClick={() => setTranscriptions(transcriptions.filter((_, i) => i !== index))}
-                  />
-                </div>
-              ))}
+            <IonCol size="12" sizeSm="8" sizeMd="6" sizeLg="4">
+              <IonText>
+                {transcriptions.map((transcription, index) => (
+                  <div key={index} className={`transcription-item ${index % 2 === 0 ? 'even' : 'odd'}`}>
+                    {transcription}
+                    {index < transcriptions.length - 1 && <br />}
+                    <IonIcon
+                      icon={trashSharp}
+                      onClick={() => deleteTranscription(index)}
+                    />
+                  </div>
+                ))}
+              </IonText>
             </IonCol>
           </IonRow>
         </IonGrid>
+        <IonButton onClick={downloadTranscriptionsAsJson}>Download Transcriptions JSON</IonButton>
       </IonContent>
     </IonPage>
-  );
+  );  
 };
 
 export default Symptoms;
