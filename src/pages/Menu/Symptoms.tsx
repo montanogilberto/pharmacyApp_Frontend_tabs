@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   IonContent,
   IonPage,
@@ -18,12 +18,37 @@ const Symptoms: React.FC = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [transcriptions, setTranscriptions] = useState<string[]>([]);
   const [speechRecognizer, setSpeechRecognizer] = useState<sdk.SpeechRecognizer | null>(null);
+  const [hasMicrophonePermission, setHasMicrophonePermission] = useState(false);
 
   const subscriptionKey = "460390b601974d33a0d7969c32a041aa";
   const serviceRegion = "westus";
 
+
+  // ... other functions
+
+  useEffect(() => {
+    async function checkMicrophonePermission() {
+      try {
+        const audioDevices = await navigator.mediaDevices.enumerateDevices();
+        const hasMic = audioDevices.some((device) => device.kind === "audioinput");
+        setHasMicrophonePermission(hasMic);
+      } catch (error) {
+        console.error("Error checking microphone permission:", error);
+        // Handle error scenario here
+      }
+    }
+
+    checkMicrophonePermission();
+  }, []);
+
   const toggleRecording = async () => {
     setIsRecording((prev) => !prev);
+
+    if (!hasMicrophonePermission) {
+      console.error("Microphone permission is required to start recording.");
+      // Prompt the user to grant microphone permission (implementation TBD)
+      return;
+    }
 
     if (!isRecording) {
       console.log("Starting transcription...");
@@ -65,12 +90,41 @@ const Symptoms: React.FC = () => {
   };
 
   const downloadTranscriptionsAsJson = () => {
-    const jsonContent = JSON.stringify(transcriptions, null, 2);
+    const jsonContent = JSON.stringify({
+      recomendacionMedica: [
+        {
+          descripcion: {
+            idioma: "es-EN",
+            texto: "Recomendación médica basada en transcripciones de síntomas."
+          },
+          persona: {
+            tipoPersona: "Adulto"
+          },
+          sintomas: transcriptions.reduce((acc: any, transcription, index) => {
+            acc[`sintoma${index + 1}`] = transcription;
+            return acc;
+          }, {}),
+          formatoResultado: {
+            formato: {
+              recomendaciones: [
+                {
+                  sintoma: "",
+                  tratamiento: "",
+                  "nombre del medicamento": "",
+                  mg: " mg"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }, null, 2);
     const blob = new Blob([jsonContent], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     console.log("Transcriptions JSON:", jsonContent);
     console.log("Download JSON:", url);
   };
+  
 
   return (
     <IonPage>
