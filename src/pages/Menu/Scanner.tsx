@@ -1,43 +1,45 @@
 import React, { useState } from 'react';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButton } from '@ionic/react';
-import { Plugins } from '@capacitor/core';
 import { Camera, CameraResultType } from '@capacitor/camera';
 
-import './Scanner.css';
-
-const { BarcodeScanner } = Plugins;
-
 const Scanner: React.FC = () => {
-  const [barcode, setBarcode] = useState<string | null>(null);
-  const [imageSrc, setImageSrc] = useState<string>(''); // Fix applied here
-
-  const handleScan = async () => {
-    try {
-      const result = await BarcodeScanner.startScan();
-      console.log('Scanned barcode:', result.text);
-      setBarcode(result.text);
-      // Handle the scanned barcode here
-    } catch (error) {
-      console.error('Error scanning barcode:', error);
-    }
-  };
+  const [images, setImages] = useState<{ image: string; file: string | undefined }[]>([]);
 
   const takePicture = async () => {
     try {
       const image = await Camera.getPhoto({
         quality: 90,
         allowEditing: true,
-        resultType: CameraResultType.Uri
+        resultType: CameraResultType.Base64,
       });
-      const imageUrl = image.webPath;
+      const imageUrl = image.base64String;
       if (imageUrl) {
-        setImageSrc(imageUrl);
+        const newImages = [...images, { image: `image${images.length + 1}_${getCurrentDate()}`, file: imageUrl }];
+        setImages(newImages);
       } else {
         console.error('Image URL is undefined');
       }
     } catch (error) {
-      console.error('Error taking picture:', error);
+      if (error === 'User cancelled photos app') {
+        console.log('User cancelled taking a picture');
+      } else {
+        console.error('Error taking picture:', error);
+      }
     }
+  };
+
+  const getCurrentDate = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = (now.getMonth() + 1).toString().padStart(2, '0');
+    const day = now.getDate().toString().padStart(2, '0');
+    return `${year}${month}${day}`;
+  };
+
+  const generateJSON = () => {
+    const jsonData = { images: images.map((image, index) => ({ image: `image${index + 1}_${getCurrentDate()}`, file: image.file })) };
+    console.log(jsonData);
+    // Send jsonData to backend
   };
 
   return (
@@ -48,22 +50,12 @@ const Scanner: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen>
-        <IonHeader collapse="condense">
-          <IonToolbar>
-            <IonTitle size="large">Scanner</IonTitle>
-          </IonToolbar>
-        </IonHeader>
         <div className="container">
-          {/* Optional: You can add a message here indicating that the scanner is active */}
-          <p>Scanner is active...</p>
-          {/* Add a button to trigger barcode scanning */}
-          <IonButton onClick={handleScan}>Scan Barcode</IonButton>
-          {/* Add an image element to display the captured image */}
-          {imageSrc && <img src={imageSrc} alt="Captured Image" />}
-          {/* Add a button to trigger taking a picture */}
+          {images.map((img, index) => (
+            <img key={index} src={`data:image/jpeg;base64,${img.file}`} alt={`Captured Image ${index + 1}`} />
+          ))}
           <IonButton onClick={takePicture}>Take Picture</IonButton>
-          {/* Display the scanned barcode */}
-          {barcode && <p>Scanned barcode: {barcode}</p>}
+          {images.length === 3 && <IonButton onClick={generateJSON}>Generate JSON</IonButton>}
         </div>
       </IonContent>
     </IonPage>

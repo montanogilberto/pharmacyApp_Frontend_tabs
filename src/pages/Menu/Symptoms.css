@@ -35,4 +35,26 @@
   .transcription-item.even {
     background-color: #e3edf7;
   }
+
+  .custom-loading {
+    --background: rgba(253, 253, 253, 0.836); 
+  }
+  
+  .custom-loading .loading-spinner {
+    color: var(--ion-color-primary); 
+  }
+
+  .recommendation-item {
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+  }
+  
+  .recommendation-header {
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  
   
