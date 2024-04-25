@@ -14,7 +14,9 @@ import {
   IonHeader,
   IonTitle,
   IonToolbar,
-  IonAlert
+  IonAlert,
+  IonFab,
+  IonFabButton
 } from "@ionic/react";
 import { add, mic, micOff, trashSharp } from "ionicons/icons";
 import * as sdk from "microsoft-cognitiveservices-speech-sdk";
@@ -195,9 +197,17 @@ const Symptoms: React.FC = () => {
             </IonCol>
           </IonRow>
         </IonGrid>
-        <IonButton onClick={downloadTranscriptionsAsJson} disabled={transcriptions.length === 0}>
-          Download Transcriptions JSON
-        </IonButton>
+
+        <IonFab vertical="bottom" horizontal="center">
+          <IonFabButton onClick={() => {
+            if (isRecording) {
+              toggleRecording(); // Stop recording if it's currently active
+            }
+            downloadTranscriptionsAsJson(); // Call the download function
+          }} disabled={transcriptions.length === 0}>
+            <IonIcon icon={add}></IonIcon>
+          </IonFabButton>
+        </IonFab>
 
         <IonLoading
           isOpen={showLoading}

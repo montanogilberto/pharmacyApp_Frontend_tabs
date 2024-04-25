@@ -1,9 +1,19 @@
 import React, { useState } from 'react';
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButton } from '@ionic/react';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButton, IonFab, IonFabButton, IonIcon } from '@ionic/react';
 import { Camera, CameraResultType } from '@capacitor/camera';
+import { camera } from 'ionicons/icons';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import 'swiper/swiper-bundle.css'; // Import Swiper styles
+import './Scanner.css';
+import { BlobServiceClient } from '@azure/storage-blob';
+
+interface ImageData {
+  image: string;
+  url_file: string;
+}
 
 const Scanner: React.FC = () => {
-  const [images, setImages] = useState<{ image: string; file: string | undefined }[]>([]);
+  const [images, setImages] = useState<ImageData[]>([]);
 
   const takePicture = async () => {
     try {
@@ -14,8 +24,20 @@ const Scanner: React.FC = () => {
       });
       const imageUrl = image.base64String;
       if (imageUrl) {
-        const newImages = [...images, { image: `image${images.length + 1}_${getCurrentDate()}`, file: imageUrl }];
+        const currentDate = getCurrentDate();
+        const newImage = { 
+          image: `image${images.length + 1}_${currentDate}`, 
+          url_file: imageUrl,
+        };
+        const newImages = [...images, newImage];
+        console.log('New images:', newImages); // Log new images
         setImages(newImages);
+  
+        // Check if at least 3 images have been captured
+        if (newImages.length === 3) {
+          // Upload images to Azure Blob Storage
+          await uploadImagesToBlobStorage(newImages);
+        }
       } else {
         console.error('Image URL is undefined');
       }
@@ -36,10 +58,20 @@ const Scanner: React.FC = () => {
     return `${year}${month}${day}`;
   };
 
-  const generateJSON = () => {
-    const jsonData = { images: images.map((image, index) => ({ image: `image${index + 1}_${getCurrentDate()}`, file: image.file })) };
-    console.log(jsonData);
-    // Send jsonData to backend
+  const uploadImagesToBlobStorage = async (images: ImageData[]) => {
+    try {
+      const blobServiceClient = new BlobServiceClient('YOUR_CONNECTION_STRING');
+      const containerName = 'images';
+      const containerClient = blobServiceClient.getContainerClient(containerName);
+      
+      for (const image of images) {
+        const blockBlobClient = containerClient.getBlockBlobClient(image.image);
+        const response = await blockBlobClient.upload(image.url_file, image.url_file.length);
+        console.log(`Image ${image.image} uploaded successfully:`, response.requestId);
+      }
+    } catch (error) {
+      console.error('Error uploading images to Azure Blob Storage:', error);
+    }
   };
 
   return (
@@ -50,13 +82,22 @@ const Scanner: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen>
-        <div className="container">
+        <Swiper
+          spaceBetween={50}
+          slidesPerView={3}
+        >
           {images.map((img, index) => (
-            <img key={index} src={`data:image/jpeg;base64,${img.file}`} alt={`Captured Image ${index + 1}`} />
+            <SwiperSlide key={index}>
+              <img src={`data:image/jpeg;base64,${img.url_file}`} alt={`Captured Image ${index + 1}`} />
+            </SwiperSlide>
           ))}
-          <IonButton onClick={takePicture}>Take Picture</IonButton>
-          {images.length === 3 && <IonButton onClick={generateJSON}>Generate JSON</IonButton>}
-        </div>
+        </Swiper>
+        <IonFab vertical="bottom" horizontal="center" slot="fixed">
+          <IonFabButton onClick={takePicture}>
+            <IonIcon icon={camera} />
+          </IonFabButton>
+        </IonFab>
+        {/* Removed button condition as images are now uploaded immediately after capturing */}
       </IonContent>
     </IonPage>
   );
