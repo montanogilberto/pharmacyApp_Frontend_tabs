@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:dist/assets/swipe-back-legacy-ynHtlAHx.js
-System.register(["./index-legacy-u4ZiGLIG.js"],(function(t,e){"use strict";var n,r,i;return{setters:[function(t){n=t.i,r=t.c,i=t.a}],execute:function(){
-========
-System.register(["./index-legacy-xLEjegaV.js"],(function(t,e){"use strict";var n,r,i;return{setters:[function(t){n=t.i,r=t.c,i=t.a}],execute:function(){
->>>>>>>> 54ce5aa56cbbb053114464c8045b91b3f1aa8f8a:dist/assets/swipe-back-legacy-K7MOUC5J.js
+System.register(["./index-legacy-dkFf9U8o.js"],(function(t,e){"use strict";var n,r,i;return{setters:[function(t){n=t.i,r=t.c,i=t.a}],execute:function(){
 /*!
              * (C) Ionic http://ionicframework.com - MIT License
              */

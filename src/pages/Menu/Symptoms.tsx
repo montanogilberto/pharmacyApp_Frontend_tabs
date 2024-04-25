@@ -268,3 +268,5 @@ const Symptoms: React.FC = () => {
     </IonPage>
   );
 };
+
+export default Symptoms;
