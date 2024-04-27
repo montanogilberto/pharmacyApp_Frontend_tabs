@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButton, IonFab, IonFabButton, IonIcon } from '@ionic/react';
 import { Camera, CameraResultType } from '@capacitor/camera';
-import { camera } from 'ionicons/icons';
+import { camera, send, trash } from 'ionicons/icons';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/swiper-bundle.css'; // Import Swiper styles
 import './Scanner.css';
@@ -74,6 +74,20 @@ const Scanner: React.FC = () => {
     }
   };
 
+  const handleFabButtonClick = async () => {
+    if (images.length === 3) {
+      await uploadImagesToBlobStorage(images);
+    } else {
+      takePicture();
+    }
+  };
+
+  const handleDeleteImage = (index: number) => {
+    const updatedImages = [...images];
+    updatedImages.splice(index, 1);
+    setImages(updatedImages);
+  };
+
   return (
     <IonPage>
       <IonHeader>
@@ -82,22 +96,29 @@ const Scanner: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen>
-        <Swiper
+      <Swiper
           spaceBetween={50}
           slidesPerView={3}
+          navigation
+          pagination={{ clickable: true }}
+          scrollbar={{ draggable: true }}
         >
           {images.map((img, index) => (
             <SwiperSlide key={index}>
-              <img src={`data:image/jpeg;base64,${img.url_file}`} alt={`Captured Image ${index + 1}`} />
+              <div className="swiper-slide-content">
+                <img src={`data:image/jpeg;base64,${img.url_file}`} alt={`Captured Image ${index + 1}`} />
+                <IonButton onClick={() => handleDeleteImage(index)} color="danger" expand="full">
+                  <IonIcon icon={trash} slot="icon-only" />
+                </IonButton>
+              </div>
             </SwiperSlide>
           ))}
         </Swiper>
         <IonFab vertical="bottom" horizontal="center" slot="fixed">
-          <IonFabButton onClick={takePicture}>
-            <IonIcon icon={camera} />
+          <IonFabButton onClick={handleFabButtonClick}>
+            <IonIcon icon={images.length === 3 ? send : camera} />
           </IonFabButton>
         </IonFab>
-        {/* Removed button condition as images are now uploaded immediately after capturing */}
       </IonContent>
     </IonPage>
   );
