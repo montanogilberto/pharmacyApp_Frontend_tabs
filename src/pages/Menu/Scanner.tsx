@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButton, IonFab, IonFabButton, IonIcon } from '@ionic/react';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButton, IonFab, IonFabButton, IonIcon, IonCol } from '@ionic/react';
 import { Camera, CameraResultType } from '@capacitor/camera';
 import { camera, send, trash } from 'ionicons/icons';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -90,35 +90,32 @@ const Scanner: React.FC = () => {
 
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>Scanner</IonTitle>
-        </IonToolbar>
-      </IonHeader>
-      <IonContent fullscreen>
-      <Swiper
-          spaceBetween={50}
-          slidesPerView={3}
-          navigation
-          pagination={{ clickable: true }}
-          scrollbar={{ draggable: true }}
-        >
-          {images.map((img, index) => (
-            <SwiperSlide key={index}>
-              <div className="swiper-slide-content">
-                <img src={`data:image/jpeg;base64,${img.url_file}`} alt={`Captured Image ${index + 1}`} />
-                <IonButton onClick={() => handleDeleteImage(index)} color="danger" expand="full">
-                  <IonIcon icon={trash} slot="icon-only" />
-                </IonButton>
-              </div>
-            </SwiperSlide>
-          ))}
-        </Swiper>
-        <IonFab vertical="bottom" horizontal="center" slot="fixed">
-          <IonFabButton onClick={handleFabButtonClick}>
-            <IonIcon icon={images.length === 3 ? send : camera} />
-          </IonFabButton>
-        </IonFab>
+      <IonContent className="ion-justify-content-center">
+        <IonCol size="12" sizeSm="8" sizeMd="6" sizeLg="4">
+          <Swiper
+              spaceBetween={50}
+              slidesPerView={3}
+              navigation
+              pagination={{ clickable: true }}
+              scrollbar={{ draggable: true }}
+            >
+              {images.map((img, index) => (
+                <SwiperSlide key={index}>
+                <div className="swiper-slide-content">
+                  <img src={`data:image/jpeg;base64,${img.url_file}`} alt={`Captured Image ${index + 1}`} />
+                  <IonButton onClick={() => handleDeleteImage(index)} color="danger" expand="full">
+                    <IonIcon icon={trash} slot="icon-only" />
+                  </IonButton>
+                </div>
+              </SwiperSlide>
+              ))}
+            </Swiper>
+          </IonCol>
+          <IonFab vertical="bottom" horizontal="center" slot="fixed">
+            <IonFabButton onClick={handleFabButtonClick}>
+              <IonIcon icon={images.length === 3 ? send : camera} />
+            </IonFabButton>
+          </IonFab>
       </IonContent>
     </IonPage>
   );

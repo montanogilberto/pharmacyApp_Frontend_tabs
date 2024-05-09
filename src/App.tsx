@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { IonApp, IonContent, IonTabs, IonRouterOutlet, IonTabBar, IonTabButton, IonIcon, IonLabel, setupIonicReact, IonPopover, IonList
-  , IonItemDivider, IonButton,  IonItem,  IonAlert } from '@ionic/react';
+  , IonItemDivider, IonButton,  IonItem,  IonAlert, IonCol, IonRow } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { Redirect, Route, useHistory } from 'react-router-dom';
 import { helpCircleOutline, logOutOutline, mailOutline, closeOutline, home, storefront, barcode, medkit } from 'ionicons/icons';
@@ -67,13 +67,18 @@ const App: React.FC = () => {
 
   return (
     <IonApp>
+      
       <IonReactRouter>
-        <Header
-          presentAlertPopover={presentAlertPopover}
-          presentMailPopover={presentMailPopover}
-          handleLogout={handleLogout}
-        />
-        <IonContent>
+        <IonRow className="ion-justify-content-center">
+          <IonCol size="12" sizeSm="8" sizeMd="6" sizeLg="4">
+            <Header
+              presentAlertPopover={presentAlertPopover}
+              presentMailPopover={presentMailPopover}
+              handleLogout={handleLogout}
+            />
+          </IonCol>
+        </IonRow>
+        <IonContent className="ion-justify-content-center" >
           <IonTabs>
             <IonRouterOutlet>
               <Route exact path="/Menu/Home" component={Home} />
