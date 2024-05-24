@@ -1,10 +1,7 @@
 import React, { useState } from 'react';
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButton, IonFab, IonFabButton, IonIcon, IonCol } from '@ionic/react';
+import { IonContent, IonPage, IonButton, IonFab, IonFabButton, IonIcon, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonImg, IonModal, IonHeader, IonToolbar, IonButtons, IonTitle, IonBackButton, IonCol, IonGrid, IonRow } from '@ionic/react';
 import { Camera, CameraResultType } from '@capacitor/camera';
 import { camera, send, trash } from 'ionicons/icons';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import 'swiper/swiper-bundle.css'; // Import Swiper styles
-import './Scanner.css';
 import { BlobServiceClient } from '@azure/storage-blob';
 
 interface ImageData {
@@ -14,6 +11,8 @@ interface ImageData {
 
 const Scanner: React.FC = () => {
   const [images, setImages] = useState<ImageData[]>([]);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string>('');
 
   const takePicture = async () => {
     try {
@@ -88,34 +87,58 @@ const Scanner: React.FC = () => {
     setImages(updatedImages);
   };
 
+  const handleImageClick = (url: string) => {
+    setSelectedImage(url);
+    setShowModal(true);
+  };
+
   return (
     <IonPage>
       <IonContent className="ion-justify-content-center">
-        <IonCol size="12" sizeSm="8" sizeMd="6" sizeLg="4">
-          <Swiper
-              spaceBetween={50}
-              slidesPerView={3}
-              navigation
-              pagination={{ clickable: true }}
-              scrollbar={{ draggable: true }}
+      <IonGrid>
+          <IonRow className="ion-justify-content-center">
+            <IonCol
+              size="12"
+              sizeSm="8"
+              sizeMd="6"
+              sizeLg="4"
+              className="ion-text-center"
             >
+
               {images.map((img, index) => (
-                <SwiperSlide key={index}>
-                <div className="swiper-slide-content">
-                  <img src={`data:image/jpeg;base64,${img.url_file}`} alt={`Captured Image ${index + 1}`} />
-                  <IonButton onClick={() => handleDeleteImage(index)} color="danger" expand="full">
-                    <IonIcon icon={trash} slot="icon-only" />
-                  </IonButton>
-                </div>
-              </SwiperSlide>
+                <IonCard key={index}>
+                  <IonImg src={`data:image/jpeg;base64,${img.url_file}`} onClick={() => handleImageClick(img.url_file)} />
+                  <IonCardHeader>
+                    <IonCardTitle>{`Captured Image ${index + 1}`}</IonCardTitle>
+                  </IonCardHeader>
+                  <IonCardContent>
+                    <IonButton onClick={() => handleDeleteImage(index)} color="danger" expand="full">
+                      <IonIcon icon={trash} slot="icon-only" />
+                    </IonButton>
+                  </IonCardContent>
+                </IonCard>
               ))}
-            </Swiper>
-          </IonCol>
-          <IonFab vertical="bottom" horizontal="center" slot="fixed">
-            <IonFabButton onClick={handleFabButtonClick}>
-              <IonIcon icon={images.length === 3 ? send : camera} />
-            </IonFabButton>
-          </IonFab>
+            </IonCol>
+          </IonRow>
+        </IonGrid>
+        <IonFab vertical="bottom" horizontal="center" slot="fixed">
+          <IonFabButton onClick={handleFabButtonClick}>
+            <IonIcon icon={images.length === 3 ? send : camera} />
+          </IonFabButton>
+        </IonFab>
+        <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
+          <IonHeader>
+            <IonToolbar>
+              <IonButtons slot="start">
+                <IonButton onClick={() => setShowModal(false)}>Close</IonButton>
+              </IonButtons>
+              <IonTitle>Enlarged Image</IonTitle>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent>
+            <IonImg src={`data:image/jpeg;base64,${selectedImage}`} />
+          </IonContent>
+        </IonModal>
       </IonContent>
     </IonPage>
   );
