@@ -7,7 +7,7 @@ import { helpCircleOutline, logOutOutline, mailOutline, closeOutline, home, stor
 
 import Home from './pages/Menu/Home';
 import Scanner from './pages/Menu/Scanner';
-import Tab3 from './pages/Tab3';
+import Products from './pages/Products';
 import Symptoms from './pages/Menu/Symptoms';
 import Login from './pages/Authentication/Login';
 import Header from './components/Header';
@@ -83,7 +83,7 @@ const App: React.FC = () => {
             <IonRouterOutlet>
               <Route exact path="/Menu/Home" component={Home} />
               <Route exact path="/Menu/Scanner" component={Scanner} />
-              <Route path="/tab3" component={Tab3} />
+              <Route path="/Products" component={Products} />
               <Route path="/Menu/Symptoms" component={Symptoms} />
               <Route exact path="/login" component={Login} />
               <Route exact path="/" render={() => <Redirect to="/Home" />} />
@@ -97,7 +97,7 @@ const App: React.FC = () => {
                 <IonIcon icon={barcode} />
                 Scanner
               </IonTabButton>
-              <IonTabButton tab="tab3" href="/tab3">
+              <IonTabButton tab="Products" href="/Products">
                 <IonIcon aria-hidden="true" icon={storefront} />
                 Products
               </IonTabButton>
