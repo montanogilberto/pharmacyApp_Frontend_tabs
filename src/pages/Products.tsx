@@ -17,7 +17,7 @@ interface Product {
   productFormId: number;
   manufactureId: number;
   createdAt: string;
-  productId: number;  // Ensure productId is included in the interface
+  productId: string;  // Ensure productId is included in the interface
 }
 
 const Products: React.FC = () => {
