@@ -1,11 +1,11 @@
-// ProductForm.tsx
-import React, { useState } from 'react';
-import { IonContent, IonPage, IonInput, IonGrid, IonRow, IonCol, IonLabel, IonToast, IonButton, IonDatetime, IonItem } from '@ionic/react';
-import { useHistory } from 'react-router-dom';
-
-import './Products.css'
+// File Path: ./Products/ProductDetails.tsx
+import React, { useState, useEffect } from 'react';
+import { IonContent, IonPage, IonInput, IonGrid, IonRow, IonCol, IonLabel, IonToast, IonButton, IonDatetime, IonItem, IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle } from '@ionic/react';
+import { useHistory, useParams } from 'react-router-dom';
+import './ProductDetails.css';
 
 const ProductDetails: React.FC = () => {
+    const { productId } = useParams<{ productId: string }>();
     const history = useHistory();
     const [product, setProduct] = useState({
         name: '',
@@ -16,21 +16,48 @@ const ProductDetails: React.FC = () => {
     });
     const [message, setMessage] = useState('');
 
+    useEffect(() => {
+        const fetchProductDetails = async () => {
+            try {
+                const response = await fetch('https://smartloansbackend.azurewebsites.net/one_products', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        products: [
+                            {
+                                productId: productId
+                            }
+                        ]
+                    }),
+                });
+                const data = await response.json();
+                if (data.products && data.products.length > 0) {
+                    setProduct(data.products[0]);
+                } else {
+                    setMessage('Product not found');
+                }
+            } catch (error) {
+                console.error('Error fetching product details:', error);
+                setMessage('Error fetching product details');
+            }
+        };
+
+        fetchProductDetails();
+    }, [productId]);
+
     const handleChange = (value: string | string[], field: keyof typeof product) => {
-      if (Array.isArray(value)) {
-          // If it's an array, handle accordingly, here we take the first value as example
-          setProduct({ ...product, [field]: value[0] });
-      } else {
-          // It's a string, handle it directly
-          setProduct({ ...product, [field]: value });
-      }
-  };
-  
+        if (Array.isArray(value)) {
+            setProduct({ ...product, [field]: value[0] });
+        } else {
+            setProduct({ ...product, [field]: value });
+        }
+    };
 
     const handleSave = async () => {
         console.log('Saving product...', product);
         // Here you would typically send a request to your backend to save the product
-        // Simulating a save with a timeout
         setMessage('Saving product...');
         setTimeout(() => {
             setMessage('Product saved successfully!');
@@ -40,11 +67,18 @@ const ProductDetails: React.FC = () => {
 
     return (
         <IonPage>
+            <IonHeader>
+                <IonToolbar>
+                    <IonButtons slot="start">
+                        <IonBackButton defaultHref="/products" />
+                    </IonButtons>
+                    <IonTitle>Product Details</IonTitle>
+                </IonToolbar>
+            </IonHeader>
             <IonContent className="ion-padding">
                 <IonGrid>
                     <IonRow className="ion-justify-content-center">
                         <IonCol size="12" sizeSm="8" sizeMd="6" sizeLg="4">
-                            <h1 className="ion-text-center">Product Details</h1>
                             <IonToast isOpen={!!message} message={message} duration={3000} onDidDismiss={() => setMessage('')} color="success" position="top" />
                             <form onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
                                 <IonItem>

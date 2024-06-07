@@ -1,6 +1,6 @@
+// App.tsx
 import React, { useState } from 'react';
-import { IonApp, IonContent, IonTabs, IonRouterOutlet, IonTabBar, IonTabButton, IonIcon, IonLabel, setupIonicReact, IonPopover, IonList
-  , IonItemDivider, IonButton,  IonItem,  IonAlert, IonCol, IonRow } from '@ionic/react';
+import { IonApp, IonContent, IonTabs, IonRouterOutlet, IonTabBar, IonTabButton, IonIcon, IonLabel, setupIonicReact, IonPopover, IonList, IonItemDivider, IonButton, IonItem, IonAlert, IonCol, IonRow } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { Redirect, Route, useHistory } from 'react-router-dom';
 import { helpCircleOutline, logOutOutline, mailOutline, closeOutline, home, storefront, barcode, medkit } from 'ionicons/icons';
@@ -8,11 +8,11 @@ import { helpCircleOutline, logOutOutline, mailOutline, closeOutline, home, stor
 import Home from './pages/Menu/Home';
 import Scanner from './pages/Menu/Scanner';
 import Products from './pages/Products';
+import ProductDetails from './pages/Products/ProductDetails';
 import Symptoms from './pages/Menu/Symptoms';
 import Login from './pages/Authentication/Login';
 import Header from './components/Header';
 import LogoutAlert from './components/LogoutAlert';
-
 
 import '@ionic/react/css/core.css';
 import '@ionic/react/css/normalize.css';
@@ -67,7 +67,6 @@ const App: React.FC = () => {
 
   return (
     <IonApp>
-      
       <IonReactRouter>
         <IonRow className="ion-justify-content-center">
           <IonCol size="12" sizeSm="8" sizeMd="6" sizeLg="4">
@@ -78,15 +77,16 @@ const App: React.FC = () => {
             />
           </IonCol>
         </IonRow>
-        <IonContent className="ion-justify-content-center" >
+        <IonContent className="ion-justify-content-center">
           <IonTabs>
             <IonRouterOutlet>
               <Route exact path="/Menu/Home" component={Home} />
               <Route exact path="/Menu/Scanner" component={Scanner} />
-              <Route path="/Products" component={Products} />
+              <Route exact path="/Products" component={Products} />
+              <Route exact path="/Products/:productId" component={ProductDetails} />
               <Route path="/Menu/Symptoms" component={Symptoms} />
               <Route exact path="/login" component={Login} />
-              <Route exact path="/" render={() => <Redirect to="/Home" />} />
+              <Route exact path="/" render={() => <Redirect to="/Menu/Home" />} />
             </IonRouterOutlet>
             <IonTabBar slot="bottom">
               <IonTabButton tab="Home" href="/Menu/Home">
